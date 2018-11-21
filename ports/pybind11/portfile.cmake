@@ -15,21 +15,35 @@ vcpkg_find_acquire_program(PYTHON3)
 get_filename_component(PYPATH ${PYTHON3} PATH)
 set(ENV{PATH} "$ENV{PATH};${PYPATH}")
 
-vcpkg_configure_cmake(
-    SOURCE_PATH ${SOURCE_PATH}
-    PREFER_NINJA
-    OPTIONS
-        -DPYBIND11_TEST=OFF
-        -DPYTHONLIBS_FOUND=ON
-        -DPYTHON_INCLUDE_DIRS=${CURRENT_INSTALLED_DIR}/include
-        -DPYTHON_MODULE_EXTENSION=.dll
-    OPTIONS_RELEASE
-        -DPYTHON_IS_DEBUG=OFF
-        -DPYTHON_LIBRARIES=${CURRENT_INSTALLED_DIR}/lib/python36.lib
-    OPTIONS_DEBUG
-        -DPYTHON_IS_DEBUG=ON
-        -DPYTHON_LIBRARIES=${CURRENT_INSTALLED_DIR}/debug/lib/python36_d.lib
-)
+if(CMAKE_HOST_WIN32)
+    vcpkg_configure_cmake(
+        SOURCE_PATH ${SOURCE_PATH}
+        PREFER_NINJA
+        OPTIONS
+            -DPYBIND11_TEST=OFF
+            -DPYTHONLIBS_FOUND=ON
+            -DPYTHON_INCLUDE_DIRS=${CURRENT_INSTALLED_DIR}/include
+            -DPYTHON_MODULE_EXTENSION=.dll
+        OPTIONS_RELEASE
+            -DPYTHON_IS_DEBUG=OFF
+            -DPYTHON_LIBRARIES=${CURRENT_INSTALLED_DIR}/lib/python36.lib
+        OPTIONS_DEBUG
+            -DPYTHON_IS_DEBUG=ON
+            -DPYTHON_LIBRARIES=${CURRENT_INSTALLED_DIR}/debug/lib/python36_d.lib
+    )
+else()
+    # On linux we will use default Python installation, We need tha package python-dev installed
+    vcpkg_configure_cmake(
+        SOURCE_PATH ${SOURCE_PATH}
+        PREFER_NINJA
+        OPTIONS
+            -DPYBIND11_TEST=OFF
+        OPTIONS_RELEASE
+            -DPYTHON_IS_DEBUG=OFF
+        OPTIONS_DEBUG
+            -DPYTHON_IS_DEBUG=ON
+    )
+endif()
 
 vcpkg_install_cmake()
 
